@@ -1,7 +1,7 @@
-"use client";
-import { configureChains, createConfig, WagmiConfig } from "wagmi";
-import { publicProvider } from "wagmi/providers/public";
-import { goerli } from "@wagmi/chains";
+'use client';
+import { configureChains, createConfig, WagmiConfig } from 'wagmi';
+import { publicProvider } from 'wagmi/providers/public';
+import { goerli } from '@wagmi/chains';
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [goerli],
@@ -11,7 +11,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
 const config = createConfig({
   autoConnect: true,
   publicClient,
-  webSocketPublicClient,
+  webSocketPublicClient
 });
 
 export default function Providers({ children }: { children: React.ReactNode }) {

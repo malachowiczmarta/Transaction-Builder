@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 type UseInputResult = {
   value: string;
@@ -9,7 +9,7 @@ type UseInputResult = {
   };
 };
 
-function useInput(initialValue: string = ""): UseInputResult {
+function useInput(initialValue: string = ''): UseInputResult {
   const [value, setValue] = useState(initialValue);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,7 +17,7 @@ function useInput(initialValue: string = ""): UseInputResult {
   };
 
   const handleReset = () => {
-    setValue("");
+    setValue('');
   };
 
   return {
@@ -25,8 +25,8 @@ function useInput(initialValue: string = ""): UseInputResult {
     reset: handleReset,
     bindings: {
       value,
-      onChange: handleChange,
-    },
+      onChange: handleChange
+    }
   };
 }
 

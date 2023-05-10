@@ -1,11 +1,11 @@
 export default function isValidENSName(name: string): boolean {
   // Check that the name is not empty or too long
-  if (name.trim() === "" || name.length > 253) {
+  if (name.trim() === '' || name.length > 253) {
     return false;
   }
 
   // Split the name into parts using the '.' separator
-  const parts = name.split(".");
+  const parts = name.split('.');
   const numParts = parts.length;
 
   // Check that the name has at least two parts, and that each part is not too long
@@ -15,7 +15,7 @@ export default function isValidENSName(name: string): boolean {
 
   // Check that the first part is not empty or too long
   const firstPart = parts[0];
-  if (firstPart.trim() === "" || firstPart.length > 63) {
+  if (firstPart.trim() === '' || firstPart.length > 63) {
     return false;
   }
 
