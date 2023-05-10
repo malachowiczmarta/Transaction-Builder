@@ -1,6 +1,7 @@
 import Link from "next/link";
 import "./globals.css";
 import { Inter } from "next/font/google";
+import Providers from "@/components/Providers/Providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -45,11 +46,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <main className="flex h-screen w-screen flex-col">
-          <TopNavigation />
-          <div>{children}</div>
-          <Footer />
-        </main>
+        <Providers>
+          <main className="flex h-screen w-screen flex-col">
+            <TopNavigation />
+            <div>{children}</div>
+            <Footer />
+          </main>
+        </Providers>
       </body>
     </html>
   );
