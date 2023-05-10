@@ -10,7 +10,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     function getStatusColor(status: InputStatus) {
       switch (status) {
         case 'error':
-          return 'bg-red-100 border-red-400 focus-visible:ring-offset-red-400';
+          return 'bg-red-100 border-red-200 focus-visible:ring-red-400 focus-visible:ring-offset-2';
         case 'success':
           return 'bg-green-100 border-green-400';
         default:

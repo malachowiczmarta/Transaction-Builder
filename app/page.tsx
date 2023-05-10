@@ -6,6 +6,8 @@ import isValidENSName from '@/utils/validateENSName';
 import { validateWalletAddress } from '@/utils/validateWalletAddress';
 import { useMemo, useState } from 'react';
 import { fetchEnsAddress } from '@wagmi/core';
+import { Textarea } from '@/components/ui/textarea';
+import ValidationText from '@/components/ValidationText/ValidationText';
 
 type InputHelper = {
   text: string;
@@ -15,7 +17,7 @@ type InputHelper = {
 export default function Home() {
   const { value, reset, bindings } = useInput('');
   const [abi, setAbi] = useState([]);
-
+  console.log(abi);
   const fetchAbi = async (address: string) => {
     const url = `https://anyabi.xyz/api/get-abi/${1}/${address}`;
 
@@ -56,7 +58,13 @@ export default function Home() {
       fetchAbi(value);
     }
     if (isValidENS) {
-      const address = fetchAddress(value);
+      fetchAddress(value)
+        .then((address) => {
+          fetchAbi(address);
+        })
+        .catch((error) => {
+          console.error(`Error fetching address for ENS name ${value}:`, error);
+        });
     }
     return {
       text: isValidAddress || isValidENS ? '' : 'Invalid wallet address',
@@ -81,17 +89,20 @@ export default function Home() {
                 placeholder="Enter address or ENS name"
                 status={helper.status}
               />
-              <p className="text-sm text-red-500 mt-1 ml-1">{helper.text}</p>
+              <ValidationText text={helper.text} />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="abi">
                 ABI
-                <textarea
-                  className="shadow font-normal form-textarea mt-1 block border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  rows={5}
-                  placeholder="Enter ABI"
-                  defaultValue={abi.length > 0 ? JSON.stringify(abi) : ''}></textarea>
               </label>
+              <Textarea
+                id="abi"
+                rows={8}
+                placeholder="Enter ABI"
+                defaultValue={abi && abi.length > 0 ? JSON.stringify(abi, null, 2) : ''}
+                status={undefined}
+              />
+              {/* <ValidationText text={helper.text} /> */}
             </div>
           </form>
         </Card>
