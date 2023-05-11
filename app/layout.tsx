@@ -2,6 +2,7 @@ import Link from 'next/link';
 import './globals.css';
 import { Inter } from 'next/font/google';
 import Providers from '@/components/Providers/Providers';
+import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <TopNavigation />
             <div>{children}</div>
             <Footer />
+            <Toaster />
           </main>
         </Providers>
       </body>

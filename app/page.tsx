@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { fetchEnsAddress } from '@wagmi/core';
 import { Textarea } from '@/components/ui/textarea';
 import ValidationText from '@/components/ValidationText/ValidationText';
+import { toast } from '@/components/ui/useToast';
 
 type InputHelper = {
   text: string;
@@ -17,17 +18,24 @@ type InputHelper = {
 export default function Home() {
   const { value, reset, setValue, bindings } = useInput('');
   const [abi, setAbi] = useState([]);
-  console.log(abi);
+  const [validatedAddress, setValidatedAddress] = useState('');
 
   const fetchAbi = async (address: string) => {
-    const url = `https://anyabi.xyz/api/get-abi/${1}/${address}`;
-
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('fetchAbi', data);
-        setAbi(data.abi);
+    try {
+      fetch(`https://anyabi.xyz/api/get-abi/${1}/${address}`)
+        .then((response) => response.json())
+        .then((data) => {
+          setAbi(data.abi);
+        });
+    } catch (error) {
+      toast({
+        title: 'Something went wrong.',
+        description: 'Error fetching ABI',
+        variant: 'destructive'
       });
+    } finally {
+      //to do loader
+    }
   };
 
   const fetchAddress = async (name: string) => {
@@ -35,18 +43,21 @@ export default function Home() {
       const address = (await fetchEnsAddress({
         name: name
       })) as string;
-      fetchAbi(address);
-
-      return address;
+      setValidatedAddress(address);
     } catch (error) {
+      toast({
+        title: 'Something went wrong.',
+        description: `Error fetching address for ENS name ${name}:`,
+        variant: 'destructive'
+      });
       console.error(`Error fetching address for ENS name ${name}:`, error);
-      throw error;
     } finally {
-      console.log(`Completed fetching address for ENS name ${name}`);
+      //to do loader
     }
   };
 
   const addressOrABIHelper: InputHelper = useMemo(() => {
+    setValidatedAddress('');
     if (!value)
       return {
         text: '',
@@ -54,15 +65,11 @@ export default function Home() {
       };
     const isValidAddress = validateWalletAddress(value);
     const isValidENS = isValidENSName(value);
-
+    if (isValidAddress) {
+      setValidatedAddress(value);
+    }
     if (isValidENS) {
-      fetchAddress(value)
-        .then((address) => {
-          setValue(address);
-        })
-        .catch((error) => {
-          console.error(`Error fetching address for ENS name ${value}:`, error);
-        });
+      fetchAddress(value);
     }
     return {
       text: isValidAddress || isValidENS ? '' : 'Invalid wallet address',
@@ -71,8 +78,9 @@ export default function Home() {
   }, [value]);
 
   useEffect(() => {
-    fetchAbi(value);
-  }, [value]);
+    if (validatedAddress) fetchAbi(validatedAddress);
+    if (!validatedAddress) setAbi([]);
+  }, [validatedAddress]);
 
   return (
     <section className="text-gray-600 body-font">
