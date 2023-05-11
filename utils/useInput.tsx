@@ -3,6 +3,7 @@ import { useState } from 'react';
 type UseInputResult = {
   value: string;
   reset: () => void;
+  setValue: (value: string) => void;
   bindings: {
     value: string;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -23,6 +24,7 @@ function useInput(initialValue: string = ''): UseInputResult {
   return {
     value,
     reset: handleReset,
+    setValue,
     bindings: {
       value,
       onChange: handleChange

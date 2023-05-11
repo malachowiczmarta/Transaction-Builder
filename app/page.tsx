@@ -4,7 +4,7 @@ import { Input, InputStatus } from '@/components/ui/input';
 import useInput from '@/utils/useInput';
 import isValidENSName from '@/utils/validateENSName';
 import { validateWalletAddress } from '@/utils/validateWalletAddress';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { fetchEnsAddress } from '@wagmi/core';
 import { Textarea } from '@/components/ui/textarea';
 import ValidationText from '@/components/ValidationText/ValidationText';
@@ -15,9 +15,10 @@ type InputHelper = {
 };
 
 export default function Home() {
-  const { value, reset, bindings } = useInput('');
+  const { value, reset, setValue, bindings } = useInput('');
   const [abi, setAbi] = useState([]);
   console.log(abi);
+
   const fetchAbi = async (address: string) => {
     const url = `https://anyabi.xyz/api/get-abi/${1}/${address}`;
 
@@ -45,7 +46,7 @@ export default function Home() {
     }
   };
 
-  const helper: InputHelper = useMemo(() => {
+  const addressOrABIHelper: InputHelper = useMemo(() => {
     if (!value)
       return {
         text: '',
@@ -54,13 +55,10 @@ export default function Home() {
     const isValidAddress = validateWalletAddress(value);
     const isValidENS = isValidENSName(value);
 
-    if (isValidAddress) {
-      fetchAbi(value);
-    }
     if (isValidENS) {
       fetchAddress(value)
         .then((address) => {
-          fetchAbi(address);
+          setValue(address);
         })
         .catch((error) => {
           console.error(`Error fetching address for ENS name ${value}:`, error);
@@ -72,13 +70,17 @@ export default function Home() {
     };
   }, [value]);
 
+  useEffect(() => {
+    fetchAbi(value);
+  }, [value]);
+
   return (
     <section className="text-gray-600 body-font">
       <div className="container px-5 py-8 mx-auto">
         <Card>
           <h1 className="text-2xl font-medium title-font text-gray-900 mb-3">New Transaction</h1>
           <form>
-            <div className="mb-4">
+            <div className="mb-2">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="Address">
                 Address or ENS name
               </label>
@@ -87,11 +89,11 @@ export default function Home() {
                 id="Address"
                 type="text"
                 placeholder="Enter address or ENS name"
-                status={helper.status}
+                status={addressOrABIHelper.status}
               />
-              <ValidationText text={helper.text} />
+              <ValidationText text={addressOrABIHelper.text} />
             </div>
-            <div className="mb-4">
+            <div className="mb-2">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="abi">
                 ABI
               </label>
