@@ -18,9 +18,12 @@ type InputHelper = {
 export default function Home() {
   const { value, reset, setValue, bindings } = useInput('');
   const [abi, setAbi] = useState([]);
+  const [isLoadingAddress, setIsLoadingAddress] = useState(false);
+  const [isLoadingAbi, setIsLoadingAbi] = useState(false);
   const [validatedAddress, setValidatedAddress] = useState('');
 
   const fetchAbi = async (address: string) => {
+    setIsLoadingAbi(true);
     try {
       fetch(`https://anyabi.xyz/api/get-abi/${1}/${address}`)
         .then((response) => response.json())
@@ -34,11 +37,12 @@ export default function Home() {
         variant: 'destructive'
       });
     } finally {
-      //to do loader
+      setIsLoadingAbi(false);
     }
   };
 
   const fetchAddress = async (name: string) => {
+    setIsLoadingAddress(true);
     try {
       const address = (await fetchEnsAddress({
         name: name
@@ -52,7 +56,7 @@ export default function Home() {
       });
       console.error(`Error fetching address for ENS name ${name}:`, error);
     } finally {
-      //to do loader
+      setIsLoadingAddress(false);
     }
   };
 
@@ -98,6 +102,7 @@ export default function Home() {
                 type="text"
                 placeholder="Enter address or ENS name"
                 status={addressOrABIHelper.status}
+                isLoading={isLoadingAddress}
               />
               <ValidationText text={addressOrABIHelper.text} />
             </div>
@@ -111,6 +116,7 @@ export default function Home() {
                 placeholder="Enter ABI"
                 defaultValue={abi && abi.length > 0 ? JSON.stringify(abi, null, 2) : ''}
                 status={undefined}
+                isLoading={isLoadingAbi}
               />
               {/* <ValidationText text={helper.text} /> */}
             </div>
