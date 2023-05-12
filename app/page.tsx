@@ -9,6 +9,7 @@ import { fetchEnsAddress } from '@wagmi/core';
 import { Textarea } from '@/components/ui/textarea';
 import ValidationText from '@/components/ValidationText/ValidationText';
 import { toast } from '@/components/ui/useToast';
+import { ethers, Interface } from 'ethers';
 
 type InputHelper = {
   text: string;
@@ -20,7 +21,13 @@ export default function Home() {
   const [abi, setAbi] = useState([]);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
   const [isLoadingAbi, setIsLoadingAbi] = useState(false);
+  const [iface, setIface] = useState<ethers.Interface | null>(null);
   const [validatedAddress, setValidatedAddress] = useState('');
+
+  // console.log(
+  //   'iface',
+  //   iface.forEachFunction((f) => console.log(f.name))
+  // );
 
   const fetchAbi = async (address: string) => {
     setIsLoadingAbi(true);
@@ -85,6 +92,25 @@ export default function Home() {
     if (validatedAddress) fetchAbi(validatedAddress);
     if (!validatedAddress) setAbi([]);
   }, [validatedAddress]);
+
+  useEffect(() => {
+    setIface(new Interface(abi));
+  }, [abi]);
+
+  // useEffect(() => {
+  //   if (abi && abi.length > 0 && validatedAddress) {
+  //     const fetchData = async () => {
+  //       const data = await getContract({
+  //         // @ts-ignore
+  //         address: validatedAddress,
+  //         abi: abi
+  //       });
+
+  //       console.log('data', data);
+  //     };
+  //     fetchData();
+  //   }
+  // }, [validatedAddress, abi.length]);
 
   return (
     <section className="text-gray-600 body-font">
