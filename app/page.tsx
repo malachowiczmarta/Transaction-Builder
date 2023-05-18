@@ -24,11 +24,16 @@ type InputHelper = {
 };
 
 export default function Home() {
-  const { value, reset, setValue, bindings } = useInput('');
+  const { value, bindings } = useInput('');
+
   const [abi, setAbi] = useState([]);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
   const [isLoadingAbi, setIsLoadingAbi] = useState(false);
   const [contractMethods, setContractMethods] = useState<ethers.FunctionFragment[] | []>([]);
+  const [selectedMethod, setSelectedMethod] = useState<ethers.FunctionFragment | undefined>(
+    undefined
+  );
+
   const [validatedAddress, setValidatedAddress] = useState('');
 
   const createMethodArr = (iface: ethers.Interface) => {
@@ -39,8 +44,11 @@ export default function Home() {
     console.log(arr);
     return arr;
   };
-
-  // console.log('iface', iface, iface ? createMethodArr(iface) : '');
+  const onSelect = (value: string) => {
+    const selectedMethods = contractMethods.find((m) => m.selector === value);
+    console.log(selectedMethods);
+    setSelectedMethod(selectedMethods);
+  };
 
   const fetchAbi = async (address: string) => {
     setIsLoadingAbi(true);
@@ -166,20 +174,41 @@ export default function Home() {
               />
               <ValidationText text={addressOrABIHelper.text} />
               {contractMethods && contractMethods.length > 0 && (
-                <Select>
+                <Select onValueChange={onSelect}>
                   <SelectTrigger aria-label="contract method">
                     <SelectValue placeholder="Select contract method" />
                   </SelectTrigger>
 
                   <SelectContent>
-                    {contractMethods.map((method, index) => (
-                      <SelectItem value={`${method.name}-${index}`} key={`${method.name}-${index}`}>
+                    {contractMethods.map((method) => (
+                      <SelectItem value={method.selector} key={method.selector}>
                         {method.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
+              {selectedMethod &&
+                selectedMethod.inputs &&
+                selectedMethod.inputs.length > 0 &&
+                selectedMethod.inputs.map((inp) => (
+                  <div key={inp.name} className="mt-2">
+                    <label
+                      className="block text-gray-700 text-sm font-bold mb-2"
+                      htmlFor="ToAddress"
+                    >
+                      {inp.name}&nbsp;({inp.baseType})
+                    </label>
+                    <Input
+                      id={inp.name}
+                      type="text"
+                      placeholder={`Enter ${inp.name}`}
+                      // status={addressOrABIHelper.status}
+                      // isLoading={isLoadingAddress}
+                      // defaultValue={validatedAddress}
+                    />
+                  </div>
+                ))}
             </form>
           </Card>
         )}
