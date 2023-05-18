@@ -10,6 +10,13 @@ import { Textarea } from '@/components/ui/textarea';
 import ValidationText from '@/components/ValidationText/ValidationText';
 import { toast } from '@/components/ui/useToast';
 import { ethers, Interface } from 'ethers';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 type InputHelper = {
   text: string;
@@ -21,13 +28,19 @@ export default function Home() {
   const [abi, setAbi] = useState([]);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
   const [isLoadingAbi, setIsLoadingAbi] = useState(false);
-  const [iface, setIface] = useState<ethers.Interface | null>(null);
+  const [contractMethods, setContractMethods] = useState<ethers.FunctionFragment[] | []>([]);
   const [validatedAddress, setValidatedAddress] = useState('');
 
-  // console.log(
-  //   'iface',
-  //   iface.forEachFunction((f) => console.log(f.name))
-  // );
+  const createMethodArr = (iface: ethers.Interface) => {
+    const arr: ethers.FunctionFragment[] = [];
+    iface.forEachFunction((f) => {
+      arr.push(f);
+    });
+    console.log(arr);
+    return arr;
+  };
+
+  // console.log('iface', iface, iface ? createMethodArr(iface) : '');
 
   const fetchAbi = async (address: string) => {
     setIsLoadingAbi(true);
@@ -94,23 +107,9 @@ export default function Home() {
   }, [validatedAddress]);
 
   useEffect(() => {
-    setIface(new Interface(abi));
+    const iface = new Interface(abi);
+    setContractMethods(createMethodArr(iface));
   }, [abi]);
-
-  // useEffect(() => {
-  //   if (abi && abi.length > 0 && validatedAddress) {
-  //     const fetchData = async () => {
-  //       const data = await getContract({
-  //         // @ts-ignore
-  //         address: validatedAddress,
-  //         abi: abi
-  //       });
-
-  //       console.log('data', data);
-  //     };
-  //     fetchData();
-  //   }
-  // }, [validatedAddress, abi.length]);
 
   return (
     <section className="text-gray-600 body-font">
@@ -148,6 +147,42 @@ export default function Home() {
             </div>
           </form>
         </Card>
+        {abi && abi.length > 0 && (
+          <Card>
+            <h1 className="text-2xl font-medium title-font text-gray-900 mb-3">
+              Transaction Information
+            </h1>
+            <form>
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="ToAddress">
+                To Address
+              </label>
+              <Input
+                id="ToAddress"
+                type="text"
+                placeholder="Enter address"
+                status={addressOrABIHelper.status}
+                isLoading={isLoadingAddress}
+                defaultValue={validatedAddress}
+              />
+              <ValidationText text={addressOrABIHelper.text} />
+              {contractMethods && contractMethods.length > 0 && (
+                <Select>
+                  <SelectTrigger aria-label="contract method">
+                    <SelectValue placeholder="Select contract method" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {contractMethods.map((method, index) => (
+                      <SelectItem value={`${method.name}-${index}`} key={`${method.name}-${index}`}>
+                        {method.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </form>
+          </Card>
+        )}
       </div>
     </section>
   );
